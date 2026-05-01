@@ -10,21 +10,121 @@ const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const saltRounds = 12;
 
+/* Secretes */
+const mongodb_host = process.env.MONGODB_HOST;
+const mongodb_user = process.env.MONGODB_USER;
+const mongodb_password = process.env.MONGODB_PASSWORD;
+const mongodb_user_database = process.env.MONGODB_USER_DATABASE;
+const mongodb_session_database = process.env.MONGODB_SESSION_DATABASE;
+const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
+const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+/* Database Connection Connection */
+const { database } = include("databaseConnection");
+const userCollection = database.db(mongodb_user_database).collection("users");
+
 /* Middleware */
+
+//When set to false, includes built in query string parsing middleware
+app.use(express.urlencoded({ extended: false }));
+
 app.use(express.json());
+
+//Creates a new MongoDB session to store
+var mongoStore = MongoStore.create({
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  crypto: {
+    secret: mongodb_session_secret,
+  },
+});
+
+//Validates the session cookie and checks if the user is logged in
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.NODE_SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
-    store: new MongoStore({ url: process.env.MONGODB_URI }),
+    saveUninitialized: true,
+    store: mongoStore,
+    cookie: { maxAge: expireTime },
   }),
 );
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+/* Routes */
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
+});
+
+app.get("/", (req, res) => {
+  if (!req.session.member) {
+    res.send(` <a href= "/signup">Signup</a>
+        <a href="/login">Login</a>`);
+  } else {
+    res.send(`<h1>Hello, ${req.session.name}!</h1>
+        <a href="/signout">Sign Out</a>`);
+  }
+});
+
+app.get("/signup", (req, res) => {
+  res.sendFile(`<form method="POST" action="/signup">
+    <input type="text" name="name" placeholder="Name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Sign Up</button>
+  </form>`);
+});
+
+app.POST("/signup", async (req, res) => {
+  const name = req.body.name;
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!name) {
+    return res.send(
+      `<p>Please provide a name.</p><a href="/signup">Try again</a>`,
+    );
+  }
+  if (!email) {
+    return res.send(
+      `<p>Please provide an email address.</p><a href="/signup">Try again</a>`,
+    );
+  }
+  if (!password) {
+    return res.send(
+      `<p>Please provide a password.</p><a href="/signup">Try again</a>`,
+    );
+  }
+
+  //Checks if email exists
+  const schema = Joi.object({
+    name: Joi.string().max(50).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  });
+
+  // Validate the input against the schema
+  const validationResult = schema.validate({ name, email, password });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    return res.send(`<p>Invalid input.</p><a href="/signup">Try again</a>`);
+  }
+
+  // Hashes the password and inserts the user into the database
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  await userCollection.insertOne({ name, email, password: hashedPassword });
+  console.log("Inserted user");
+
+  req.session.name = name;
+  req.session.cookie.maxAge = expireTime;
+  res.redirect("/members");
+});
+
+//logs out user
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
+
+app.use((req, res) => {
+  res.status(404).send("Page not found");
 });
