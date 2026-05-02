@@ -40,7 +40,7 @@ app.use(express.static(__dirname + "/public"));
 const encodedPassword = encodeURIComponent(mongodb_password);
 
 var mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${encodedPassword}@${mongodb_host}/${mongodb_session_database}?retryWrites=true&w=majority`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
   collectionName: "sessions",
   crypto: {
     secret: mongodb_session_secret,
@@ -54,7 +54,7 @@ mongoStore.on("error", function (error) {
 //Validates the session cookie and checks if the user is logged in
 app.use(
   session({
-    secret: process.env.NODE_SESSION_SECRET,
+    secret: node_session_secret,
     resave: true,
     saveUninitialized: false,
     store: mongoStore,
