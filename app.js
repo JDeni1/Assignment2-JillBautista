@@ -1,7 +1,7 @@
 require("./utils.js");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
-const expireTime = 24 * 60 * 60 * 1000;
+const expireTime = 1 * 60 * 60 * 1000;
 
 /* Constant requirements */
 const express = require("express");
@@ -32,8 +32,10 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.json());
 
+app.use(express.static(__dirname + "/public"));
+
 //Creates a new MongoDB session to store
-var mongoStore = new MongoStore({
+var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
   crypto: {
     secret: mongodb_session_secret,
@@ -192,11 +194,9 @@ app.get("/members", (req, res) => {
   const images = ["flower.jpg", "minions.jpg", "sunchips.jpg"];
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
-  res.send(`
-        <h1>Hello, ${req.session.name}!</h1>
-        <img src='/${randomImage}' style='width:400px;' /><br><br>
-        <a href='/logout'>Sign Out</a>
-    `);
+  res.send(`<h1>Hello, ${req.session.name}!</h1>
+    <a href="/members">Go to Members Area</a><br>
+    <a href="/logout">Sign Out</a>`);
 });
 
 //logs out user
@@ -204,8 +204,6 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
-
-app.use(express.static(__dirname + "/public"));
 
 //404 route
 app.use((req, res) => {
