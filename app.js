@@ -1,4 +1,4 @@
-const app = express();
+require("dotenv").config();
 const port = process.env.PORT || 3000;
 const expireTime = 60 * 60 * 1000; // 1 hour (Change to one day)
 
@@ -8,6 +8,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const app = express();
 const saltRounds = 12;
 
 /* Secretes */
