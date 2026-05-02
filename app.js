@@ -38,6 +38,7 @@ app.use(express.static(__dirname + "/public"));
 //Creates a new MongoDB session to store
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  collectionName: "Sessions",
   crypto: {
     secret: mongodb_session_secret,
   },
