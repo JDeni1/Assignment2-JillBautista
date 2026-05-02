@@ -70,7 +70,7 @@ app.get("/", (req, res) => {
 // Signup GET route
 app.get("/signup", (req, res) => {
   res.send(`<h1>Create user</h1>
-  <form method="POST" action="/signup">
+  <form method="post" action="/signup">
     <input type="text" name="name" placeholder="Name" required>
     <input type="email" name="email" placeholder="Email" required>
     <input type="password" name="password" placeholder="Password" required>
@@ -79,7 +79,7 @@ app.get("/signup", (req, res) => {
 });
 
 //Signup POST route
-app.POST("/signup", async (req, res) => {
+app.post("/signup", async (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
