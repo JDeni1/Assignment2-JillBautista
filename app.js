@@ -1,7 +1,8 @@
 require("./utils.js");
 require("dotenv").config();
+
 const port = process.env.PORT || 3000;
-const expireTime = 1 * 60 * 60 * 1000;
+const expireTime = 1 * 60 * 60 * 1000; // 1 hour
 
 /* Constant requirements */
 const express = require("express");
@@ -9,41 +10,70 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const crypto = require("crypto");
 const app = express();
 const saltRounds = 12;
 
-/* Secretes */
+/* Secrets */
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_user_database = process.env.MONGODB_USER_DATABASE;
 const mongodb_session_database = process.env.MONGODB_SESSION_DATABASE;
-console.log("Session DB:", mongodb_session_database);
-
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
-/* Database Connection Connection */
+/* Encryption helpers using Node.js built-in crypto */
+const ENCRYPTION_KEY = crypto.scryptSync(mongodb_session_secret, "salt", 32);
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+function decrypt(text) {
+  try {
+    const [ivHex, encrypted] = text.split(":");
+    const iv = Buffer.from(ivHex, "hex");
+    const decipher = crypto.createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
+    let decrypted = decipher.update(encrypted, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* Database Connection */
 const { database } = include("databaseConnection");
 const userCollection = database.db(mongodb_user_database).collection("users");
 
 /* Middleware */
-
-//When set to false, includes built in query string parsing middleware
 app.use(express.urlencoded({ extended: false }));
-
-app.use(express.json());
-
 app.use(express.static(__dirname + "/public"));
 
-//Creates a new MongoDB session to store
-const encodedPassword = encodeURIComponent(mongodb_password);
-
+/* Session store */
 var mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/`,
+  dbName: mongodb_session_database,
   collectionName: "sessions",
-  crypto: {
-    secret: mongodb_session_secret,
+  autoRemove: "disabled",
+  serialize: (session) => {
+    // Encrypt the session data before storing
+    const sessionStr = JSON.stringify(session);
+    return { data: encrypt(sessionStr) };
+  },
+  unserialize: (session) => {
+    // Decrypt the session data when reading
+    if (session.data) {
+      const decrypted = decrypt(session.data);
+      if (decrypted) return JSON.parse(decrypted);
+    }
+    return session;
   },
 });
 
@@ -51,7 +81,6 @@ mongoStore.on("error", function (error) {
   console.log("Session store error:", error);
 });
 
-//Validates the session cookie and checks if the user is logged in
 app.use(
   session({
     secret: node_session_secret,
@@ -63,71 +92,71 @@ app.use(
 );
 
 /* Routes */
-
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
 
+// Home
 app.get("/", (req, res) => {
   if (!req.session.name) {
-    res.send(` <h1>Welcome!</h1>
-        <button><a href= "/signup">Signup</a></button>
-        <button><a href="/login">Login</a></button>`);
+    res.send(`
+      <h1>Welcome!</h1>
+      <a href="/signup">Sign up</a><br>
+      <a href="/login">Log in</a>
+    `);
   } else {
-    res.send(`<h1>Hello, ${req.session.name}!</h1>
-    <a href="/members">Go to Members Area</a><br>
-    <a href="/logout">Sign Out</a>`);
+    res.send(`
+      <h1>Hello, ${req.session.name}!</h1>
+      <a href="/members">Go to Members Area</a><br>
+      <a href="/logout">Sign Out</a>
+    `);
   }
 });
 
-// Signup GET route
+// Signup GET
 app.get("/signup", (req, res) => {
-  res.send(`<h1>Create user</h1>
-  <form method="post" action="/signup">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Sign Up</button>
-  </form>`);
+  res.send(`
+    <h1>Create User</h1>
+    <form method="post" action="/signup">
+      <input type="text" name="name" placeholder="Name" /><br>
+      <input type="email" name="email" placeholder="Email" /><br>
+      <input type="password" name="password" placeholder="Password" /><br>
+      <button type="submit">Sign Up</button>
+    </form>
+  `);
 });
 
-//Signup POST route
+// Signup POST
 app.post("/signup", async (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
 
-  if (!name) {
+  if (!name)
     return res.send(
       `<p>Please provide a name.</p><a href="/signup">Try again</a>`,
     );
-  }
-  if (!email) {
+  if (!email)
     return res.send(
       `<p>Please provide an email address.</p><a href="/signup">Try again</a>`,
     );
-  }
-  if (!password) {
+  if (!password)
     return res.send(
       `<p>Please provide a password.</p><a href="/signup">Try again</a>`,
     );
-  }
 
-  //Checks if email exists
   const schema = Joi.object({
     name: Joi.string().max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
   });
 
-  // Validate the input against the schema
   const validationResult = schema.validate({ name, email, password });
   if (validationResult.error != null) {
     console.log(validationResult.error);
     return res.send(`<p>Invalid input.</p><a href="/signup">Try again</a>`);
   }
 
-  // Hashes the password and inserts the user into the database
   const hashedPassword = await bcrypt.hash(password, saltRounds);
   await userCollection.insertOne({ name, email, password: hashedPassword });
   console.log("Inserted user");
@@ -139,17 +168,16 @@ app.post("/signup", async (req, res) => {
   });
 });
 
-// Login GET route
+// Login GET
 app.get("/login", (req, res) => {
-  res.send(
-    `<h1>Log In</h1>
-    <form action='/login' method='post'>
-     <input name='email'    type='text'     placeholder='Email'    /><br>
-     <input name='password' type='password' placeholder='Password' /><br>
-     <button>Log In</button>
+  res.send(`
+    <h1>Log In</h1>
+    <form action="/login" method="post">
+      <input name="email" type="text" placeholder="Email" /><br>
+      <input name="password" type="password" placeholder="Password" /><br>
+      <button>Log In</button>
     </form>
-    `,
-  );
+  `);
 });
 
 // Login POST
@@ -194,7 +222,7 @@ app.post("/login", async (req, res) => {
 });
 
 // Members
-app.get("/members", async (req, res) => {
+app.get("/members", (req, res) => {
   if (!req.session.name) {
     res.redirect("/");
     return;
@@ -207,16 +235,16 @@ app.get("/members", async (req, res) => {
     <h1>Hello, ${req.session.name}!</h1>
     <img src="/${randomImage}" style="width:400px;" /><br><br>
     <a href="/logout">Sign Out</a>
-`);
+  `);
 });
 
-//logs out user
+// Logout
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
 
-//404 route
+// 404
 app.use((req, res) => {
-  res.status(404).send("Page not found");
+  res.status(404).send("Page not found - 404");
 });
