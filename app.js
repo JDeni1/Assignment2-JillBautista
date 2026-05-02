@@ -41,6 +41,7 @@ var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/`,
   dbName: mongodb_session_database,
   collectionName: "sessions",
+  autoRemove: "disabled",
   crypto: {
     secret: mongodb_session_secret,
   },
