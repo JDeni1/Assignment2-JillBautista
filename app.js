@@ -46,8 +46,8 @@ var mongoStore = MongoStore.create({
 app.use(
   session({
     secret: process.env.NODE_SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
+    resave: true,
+    saveUninitialized: false,
     store: mongoStore,
     cookie: { maxAge: expireTime },
   }),
@@ -61,8 +61,9 @@ app.listen(port, () => {
 
 app.get("/", (req, res) => {
   if (!req.session.name) {
-    res.send(` <a href= "/signup">Signup</a>
-        <a href="/login">Login</a>`);
+    res.send(` <h1>Welcome!</h1>
+        <button><a href= "/signup">Signup</a></button>
+        <button><a href="/login">Login</a></button>`);
   } else {
     res.send(`<h1>Hello, ${req.session.name}!</h1>
         <a href="/signout">Sign Out</a>`);
@@ -128,13 +129,17 @@ app.post("/signup", async (req, res) => {
 
 // Login GET route
 app.get("/login", (req, res) => {
-  res.send(`<h1>Log In</h1>
+  res
+    .send(
+      `<h1>Log In</h1>
     <form action='/login' method='post'>
      <input name='email'    type='text'     placeholder='Email'    /><br>
      <input name='password' type='password' placeholder='Password' /><br>
      <button>Log In</button>
     </form>
-    `);
+    `,
+    )
+    .redirect("/members");
 });
 
 // Login POST
