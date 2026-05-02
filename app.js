@@ -195,6 +195,9 @@ app.post("/login", async (req, res) => {
 
 // Members
 app.get("/members", (req, res) => {
+  console.log("Session data:", req.session);
+  console.log("Session name:", req.session.name);
+
   if (!req.session.name) {
     res.redirect("/");
     return;
