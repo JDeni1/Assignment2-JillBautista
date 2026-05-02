@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node patch.js && node app.js"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "connect-mongo": "^5.1.0",
