@@ -7,9 +7,7 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const MongoClient = require("mongodb").MongoClient;
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
 
-import dns from "node:dns/promises";
-console.log(await dns.getServers());
-// [ '127.0.0.53' ]
+console.log(atlasURI);
 
 var database = new MongoClient(atlasURI, {});
 async function connectDB() {
