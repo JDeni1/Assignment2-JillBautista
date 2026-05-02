@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //Creates a new MongoDB session to store
-var mongoStore = MongoStore.create({
+var mongoStore = new MongoStore({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
   crypto: {
     secret: mongodb_session_secret,
