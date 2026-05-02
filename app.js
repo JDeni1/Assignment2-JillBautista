@@ -58,7 +58,7 @@ app.listen(port, () => {
 });
 
 app.get("/", (req, res) => {
-  if (!req.session.member) {
+  if (!req.session.name) {
     res.send(` <a href= "/signup">Signup</a>
         <a href="/login">Login</a>`);
   } else {
@@ -69,7 +69,7 @@ app.get("/", (req, res) => {
 
 // Signup GET route
 app.get("/signup", (req, res) => {
-  res.sendFile(`<h1>Create user</h1>
+  res.send(`<h1>Create user</h1>
   <form method="POST" action="/signup">
     <input type="text" name="name" placeholder="Name" required>
     <input type="email" name="email" placeholder="Email" required>
@@ -204,6 +204,8 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
+
+app.use(express.static(__dirname + "/public"));
 
 //404 route
 app.use((req, res) => {
