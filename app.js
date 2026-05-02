@@ -126,7 +126,9 @@ app.post("/signup", async (req, res) => {
 
   req.session.name = name;
   req.session.cookie.maxAge = expireTime;
-  res.redirect("/members");
+  req.session.save(() => {
+    res.redirect("/members");
+  });
 });
 
 // Login GET route
@@ -173,7 +175,9 @@ app.post("/login", async (req, res) => {
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.name = result[0].name;
     req.session.cookie.maxAge = expireTime;
-    return res.redirect("/members");
+    req.session.save(() => {
+      return res.redirect("/members");
+    });
   } else {
     return res.send(
       `<p>User and password not found.</p><a href="/login">Try again</a>`,
