@@ -41,10 +41,7 @@ var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/`,
   dbName: mongodb_session_database,
   collectionName: "sessions",
-  //Encyrpts the session data in the database using the provided secret
-  crypto: {
-    secret: mongodb_session_secret,
-  },
+  autoRemove: "disabled",
 });
 
 mongoStore.on("error", function (error) {
