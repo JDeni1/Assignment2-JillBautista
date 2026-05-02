@@ -191,7 +191,17 @@ app.post("/login", async (req, res) => {
 });
 
 // Members
-app.get("/members", (req, res) => {
+app.get("/members", async (req, res) => {
+  const schema = Joi.object({
+    sessions: Joi.string().required(),
+  });
+  const validationResult = schema.validate({ sessions: req.session });
+  if (validationResult.error != null) {
+    return res.send(`<p>Invalid session.</p><a href="/login">Log in</a>`);
+  }
+  const hashedSession = await bcrypt.hash(req.session.sessions, saltRounds);
+  await sessionCollection.insertOne({ _id, expires, session: hashedSession });
+
   console.log("Session data:", req.session);
   console.log("Session name:", req.session.name);
 
