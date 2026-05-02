@@ -38,10 +38,10 @@ app.use(express.static(__dirname + "/public"));
 
 //Creates a new MongoDB session to store
 var mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/`,
-  dbName: mongodb_session_database,
-  collectionName: "sessions",
-  autoRemove: "disabled",
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  crypto: {
+    secret: mongodb_session_secret,
+  },
 });
 
 mongoStore.on("error", function (error) {
@@ -53,7 +53,7 @@ app.use(
   session({
     secret: process.env.NODE_SESSION_SECRET,
     resave: true,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: mongoStore,
     cookie: { maxAge: expireTime },
   }),
@@ -192,19 +192,6 @@ app.post("/login", async (req, res) => {
 
 // Members
 app.get("/members", async (req, res) => {
-  const schema = Joi.object({
-    sessions: Joi.string().required(),
-  });
-  const validationResult = schema.validate({ sessions: req.session });
-  if (validationResult.error != null) {
-    return res.send(`<p>Invalid session.</p><a href="/login">Log in</a>`);
-  }
-  const hashedSession = await bcrypt.hash(req.session.sessions, saltRounds);
-  await sessionCollection.insertOne({ _id, expires, session: hashedSession });
-
-  console.log("Session data:", req.session);
-  console.log("Session name:", req.session.name);
-
   if (!req.session.name) {
     res.redirect("/");
     return;
