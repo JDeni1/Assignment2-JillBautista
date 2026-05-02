@@ -66,7 +66,8 @@ app.get("/", (req, res) => {
         <button><a href="/login">Login</a></button>`);
   } else {
     res.send(`<h1>Hello, ${req.session.name}!</h1>
-        <a href="/signout">Sign Out</a>`);
+    <a href="/members">Go to Members Area</a><br>
+    <a href="/logout">Sign Out</a>`);
   }
 });
 
@@ -129,17 +130,15 @@ app.post("/signup", async (req, res) => {
 
 // Login GET route
 app.get("/login", (req, res) => {
-  res
-    .send(
-      `<h1>Log In</h1>
+  res.send(
+    `<h1>Log In</h1>
     <form action='/login' method='post'>
      <input name='email'    type='text'     placeholder='Email'    /><br>
      <input name='password' type='password' placeholder='Password' /><br>
      <button>Log In</button>
     </form>
     `,
-    )
-    .redirect("/members");
+  );
 });
 
 // Login POST
@@ -191,9 +190,11 @@ app.get("/members", (req, res) => {
   const images = ["flower.jpg", "minions.jpg", "sunchips.jpg"];
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
-  res.send(`<h1>Hello, ${req.session.name}!</h1>
-    <a href="/members">Go to Members Area</a><br>
-    <a href="/logout">Sign Out</a>`);
+  res.send(`
+    <h1>Hello, ${req.session.name}!</h1>
+    <img src="/${randomImage}" style="width:400px;" /><br><br>
+    <a href="/logout">Sign Out</a>
+`);
 });
 
 //logs out user
