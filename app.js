@@ -47,6 +47,10 @@ var mongoStore = MongoStore.create({
   },
 });
 
+mongoStore.on("error", function (error) {
+  console.log("Session store error:", error);
+});
+
 //Validates the session cookie and checks if the user is logged in
 app.use(
   session({
