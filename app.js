@@ -53,7 +53,7 @@ app.use(
   session({
     secret: process.env.NODE_SESSION_SECRET,
     resave: true,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: mongoStore,
     cookie: { maxAge: expireTime },
   }),
