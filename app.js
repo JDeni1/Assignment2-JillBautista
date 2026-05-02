@@ -1,3 +1,4 @@
+require("./utils.js");
 require("dotenv").config();
 const port = process.env.PORT || 3000;
 const expireTime = 60 * 60 * 1000; // 1 hour (Change to one day)
