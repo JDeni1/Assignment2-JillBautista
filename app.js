@@ -37,9 +37,11 @@ app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 
 //Creates a new MongoDB session to store
+const encodedPassword = encodeURIComponent(mongodb_password);
+
 var mongoStore = MongoStore.create({
-  databaseName: mongodb_session_database,
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}?retryWrites=true&w=majority`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${encodedPassword}@${mongodb_host}/${mongodb_session_database}?retryWrites=true&w=majority`,
+  collectionName: "sessions",
   crypto: {
     secret: mongodb_session_secret,
   },
