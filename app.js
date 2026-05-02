@@ -42,9 +42,6 @@ var mongoStore = MongoStore.create({
   dbName: mongodb_session_database,
   collectionName: "sessions",
   autoRemove: "disabled",
-  crypto: {
-    secret: mongodb_session_secret,
-  },
 });
 
 mongoStore.on("error", function (error) {
