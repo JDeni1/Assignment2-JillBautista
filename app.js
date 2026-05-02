@@ -39,6 +39,9 @@ app.use(express.static(__dirname + "/public"));
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
   collectionName: "Sessions",
+  crypto: {
+    secret: mongodb_session_secret,
+  },
 });
 
 //Validates the session cookie and checks if the user is logged in
