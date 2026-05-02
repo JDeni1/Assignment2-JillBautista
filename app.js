@@ -65,8 +65,10 @@ app.get("/", (req, res) => {
   }
 });
 
+// Signup GET route
 app.get("/signup", (req, res) => {
-  res.sendFile(`<form method="POST" action="/signup">
+  res.sendFile(`<h1>Create user</h1>
+  <form method="POST" action="/signup">
     <input type="text" name="name" placeholder="Name" required>
     <input type="email" name="email" placeholder="Email" required>
     <input type="password" name="password" placeholder="Password" required>
@@ -74,6 +76,7 @@ app.get("/signup", (req, res) => {
   </form>`);
 });
 
+//Signup POST route
 app.POST("/signup", async (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
@@ -117,6 +120,17 @@ app.POST("/signup", async (req, res) => {
   req.session.name = name;
   req.session.cookie.maxAge = expireTime;
   res.redirect("/members");
+});
+
+// Login GET route
+app.get("/login", (req, res) => {
+  res.send(`<h1>Log In</h1>
+    <form action='/login' method='post'>
+     <input name='email'    type='text'     placeholder='Email'    /><br>
+     <input name='password' type='password' placeholder='Password' /><br>
+     <button>Log In</button>
+    </form>
+    `);
 });
 
 //logs out user
