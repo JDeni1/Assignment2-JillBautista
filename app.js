@@ -133,12 +133,77 @@ app.get("/login", (req, res) => {
     `);
 });
 
+// Login POST
+app.post("/login", async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  //checks if email and password exists
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  });
+
+  //validates the input against the schema
+  const validationResult = schema.validate({ email, password });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    return res.send(
+      `<p>Invalid email or password format.</p><a href="/login">Try again</a>`,
+    );
+  }
+
+  //finds the user in the database
+  const result = await userCollection
+    .find({ email })
+    .project({ name: 1, email: 1, password: 1, _id: 1 })
+    .toArray();
+
+  if (result.length != 1) {
+    console.log("User not found");
+    return res.send(
+      `<p>User and password not found.</p><a href="/login">Try again</a>`,
+    );
+  }
+
+  //compares the password with the hashed password in the database
+  if (await bcrypt.compare(password, result[0].password)) {
+    console.log("Correct password");
+    req.session.name = result[0].name;
+    req.session.cookie.maxAge = expireTime;
+    res.redirect("/members");
+  } else {
+    console.log("Incorrect password");
+    res.send(
+      `<p>User and password not found.</p><a href="/login">Try again</a>`,
+    );
+  }
+});
+
+// Members
+app.get("/members", (req, res) => {
+  if (!req.session.name) {
+    res.redirect("/");
+    return;
+  }
+
+  const images = ["flower.jpg", "minions.jpg", "sunchips.jpg"];
+  const randomImage = images[Math.floor(Math.random() * images.length)];
+
+  res.send(`
+        <h1>Hello, ${req.session.name}!</h1>
+        <img src='/${randomImage}' style='width:400px;' /><br><br>
+        <a href='/logout'>Sign Out</a>
+    `);
+});
+
 //logs out user
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
 
+//404 route
 app.use((req, res) => {
   res.status(404).send("Page not found");
 });
