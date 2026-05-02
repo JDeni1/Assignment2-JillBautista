@@ -23,6 +23,8 @@ console.log("Session DB:", mongodb_session_database);
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
+const encodedPassword = encodeURIComponent(mongodb_password);
+
 /* Database Connection Connection */
 const { database } = include("databaseConnection");
 const userCollection = database.db(mongodb_user_database).collection("users");
@@ -40,7 +42,7 @@ app.use(express.static(__dirname + "/public"));
 var mongoStore = MongoStore.create({
   databaseName: mongodb_session_database,
   collectionName: "sessions",
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_session_database}`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${encodedPassword}@${mongodb_host}/${mongodb_session_database}`,
   crypto: {
     secret: mongodb_session_secret,
   },
