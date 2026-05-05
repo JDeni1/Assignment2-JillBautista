@@ -1,20 +1,20 @@
-Self-graded Assignment 1 Checklist
+Self-graded Assignment 2 Checklist
 
     Criteria
     ========
 
-[X] A home page links to signup and login, if not logged in; and links to members and signout, if logged in.
-[X] A members page that displays 1 of 3 random images stored on the server.
-[x] The members page will redirect to the home page if no valid session is found.
-[X] The signout buttons end the session.
-[X] All secrets, encryption keys, database passwords are stored in a .env file.
+[] The /admin page redirects to the /login page if not logged in.
+[] The /admin page shows an error message if logged in, but not an admin
+[] The /admin page shows a list of all users
+[] The /admin page allows for promoting and demoting users to/from admin type
+[] All pages use a CSS Framework like Bootstrap (you must incorporate a header, footer, responsive grid, forms, buttons)
 
-[X] The .env file is NOT in your git repo.
-[X] Password is BCrypted in the MongoDB database.
-[X] Your site is hosted in a hosting service like Render.
-[X] A 404 page that "catches" all invalid page hits and that sets the status code to 404.
-[X] Session information is stored in an encrypted MongoDB session database. Sessions expire after 1 hour.
+[] The site uses EJS as a templating engine
+[] Common headers and footers are shared across all pages
+[] Code used within loop is templated using EJS (ex: list of users in admin page)
+[] The members page has a responsive grid of 3 images.
+[] Your site is hosted on Render or other hosting site.
 
-50/50 (Total grade out of 50, 5 marks each x 10 items)
+/50 (Total grade out of 50, 5 marks each x 10 items)
 
 *Note items are considered *fully\* complete (marked with an x inside the box: [x]), OR incomplete (box is left empty: [ ])
