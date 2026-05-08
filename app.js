@@ -117,18 +117,11 @@ app.post("/signup", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (!name)
-    return res.send(
-      `<p>Please provide a name.</p><a href="/signup">Try again</a>`,
-    );
+  if (!name) return res.render("signup", { error: "Please provide a name." });
   if (!email)
-    return res.send(
-      `<p>Please provide an email address.</p><a href="/signup">Try again</a>`,
-    );
+    return res.render("signup", { error: "Please provide an email address." });
   if (!password)
-    return res.send(
-      `<p>Please provide a password.</p><a href="/signup">Try again</a>`,
-    );
+    return res.render("signup", { error: "Please provide a password." });
 
   const schema = Joi.object({
     name: Joi.string().max(50).required(),
@@ -139,7 +132,7 @@ app.post("/signup", async (req, res) => {
   const validationResult = schema.validate({ name, email, password });
   if (validationResult.error != null) {
     console.log(validationResult.error);
-    return res.send(`<p>Invalid input.</p><a href="/signup">Try again</a>`);
+    return res.render("signup", { error: "Invalid input." });
   }
 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -170,9 +163,7 @@ app.post("/login", async (req, res) => {
 
   const validationResult = schema.validate({ email, password });
   if (validationResult.error != null) {
-    return res.send(
-      `<p>Invalid email or password format.</p><a href="/login">Try again</a>`,
-    );
+    return res.render("login", { error: "Invalid email or password format." });
   }
 
   const result = await userCollection
@@ -181,21 +172,19 @@ app.post("/login", async (req, res) => {
     .toArray();
 
   if (result.length != 1) {
-    return res.send(
-      `<p>User and password not found.</p><a href="/login">Try again</a>`,
-    );
+    return res.render("login", { error: "User and password not found." });
   }
 
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.name = result[0].name;
+    req.session.email = result[0].email;
+    req.session.user_type = result[0].user_type;
     req.session.cookie.maxAge = expireTime;
     req.session.save(() => {
       return res.redirect("/members");
     });
   } else {
-    return res.send(
-      `<p>User and password not found.</p><a href="/login">Try again</a>`,
-    );
+    return res.render("login", { error: "User and password not found." });
   }
 });
 
@@ -205,11 +194,7 @@ app.get("/members", (req, res) => {
     res.redirect("/");
     return;
   }
-
-  const images = ["flower.jpg", "minions.jpg", "sunchips.jpg"];
-  const randomImage = images[Math.floor(Math.random() * images.length)];
-
-  res.render("members", { name: req.session.name, randomImage });
+  res.render("members", { name: req.session.name });
 });
 
 // Logout
@@ -220,5 +205,5 @@ app.get("/logout", (req, res) => {
 
 // 404
 app.use((req, res) => {
-  res.status(404).send("Page not found - 404");
+  res.status(404).render("404");
 });
