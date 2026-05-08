@@ -56,6 +56,10 @@ const userCollection = database.db(mongodb_user_database).collection("users");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(__dirname + "/public"));
 
+/* EJS connection */
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 /* Session store */
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/`,
@@ -99,11 +103,7 @@ app.listen(port, () => {
 // Home
 app.get("/", (req, res) => {
   if (!req.session.name) {
-    res.send(`
-      <h1>Welcome!</h1>
-      <a href="/signup">Sign up</a><br>
-      <a href="/login">Log in</a>
-    `);
+    res.render("index");
   } else {
     res.send(`
       <h1>Hello, ${req.session.name}!</h1>
@@ -111,19 +111,12 @@ app.get("/", (req, res) => {
       <a href="/logout">Sign Out</a>
     `);
   }
+  // res.render("index", { name: req.session.name });
 });
 
 // Signup GET
 app.get("/signup", (req, res) => {
-  res.send(`
-    <h1>Create User</h1>
-    <form method="post" action="/signup">
-      <input type="text" name="name" placeholder="Name" /><br>
-      <input type="email" name="email" placeholder="Email" /><br>
-      <input type="password" name="password" placeholder="Password" /><br>
-      <button type="submit">Sign Up</button>
-    </form>
-  `);
+  res.render("signup");
 });
 
 // Signup POST
@@ -170,14 +163,7 @@ app.post("/signup", async (req, res) => {
 
 // Login GET
 app.get("/login", (req, res) => {
-  res.send(`
-    <h1>Log In</h1>
-    <form action="/login" method="post">
-      <input name="email" type="text" placeholder="Email" /><br>
-      <input name="password" type="password" placeholder="Password" /><br>
-      <button>Log In</button>
-    </form>
-  `);
+  res.render("login");
 });
 
 // Login POST
@@ -231,11 +217,7 @@ app.get("/members", (req, res) => {
   const images = ["flower.jpg", "minions.jpg", "sunchips.jpg"];
   const randomImage = images[Math.floor(Math.random() * images.length)];
 
-  res.send(`
-    <h1>Hello, ${req.session.name}!</h1>
-    <img src="/${randomImage}" style="width:400px;" /><br><br>
-    <a href="/logout">Sign Out</a>
-  `);
+  res.render("members", { name: req.session.name, randomImage });
 });
 
 // Logout
