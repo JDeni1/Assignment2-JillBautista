@@ -103,16 +103,7 @@ app.listen(port, () => {
 
 // Home
 app.get("/", (req, res) => {
-  if (!req.session.name) {
-    res.render("index");
-  } else {
-    res.send(`
-      <h1>Hello, ${req.session.name}!</h1>
-      <a href="/members">Go to Members Area</a><br>
-      <a href="/logout">Sign Out</a>
-    `);
-  }
-  // res.render("index", { name: req.session.name });
+  res.render("index", { name: req.session.name || null });
 });
 
 // Signup GET
