@@ -11,6 +11,7 @@ const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const crypto = require("crypto");
+const path = require("path");
 const app = express();
 const saltRounds = 12;
 
