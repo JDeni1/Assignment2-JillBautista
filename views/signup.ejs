@@ -1,9 +1,45 @@
 <%- include('templates/header') %>
-<h1>Create User</h1>
-<form method="post" action="/signup">
-  <input type="text" name="name" placeholder="Name" /><br />
-  <input type="email" name="email" placeholder="Email" /><br />
-  <input type="password" name="password" placeholder="Password" /><br />
-  <button type="submit">Sign Up</button>
-</form>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-4">
+    <h2 class="text-center mb-4">Create User</h2>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form action="/signup" method="POST">
+      <div class="mb-3">
+        <input 
+          type="text" 
+          name="name" 
+          class="form-control" 
+          placeholder="Name" 
+        />
+      </div>
+      <div class="mb-3">
+        <input 
+          type="email" 
+          name="email" 
+          class="form-control" 
+          placeholder="Email address" 
+        />
+      </div>
+      <div class="mb-3">
+        <input 
+          type="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="Password" 
+        />
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+    </form>
+
+    <p class="text-center mt-3">
+      Already have an account? <a href="/login">Log in</a>
+    </p>
+  </div>
+</div>
+
 <%- include('templates/footer') %>
