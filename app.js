@@ -169,7 +169,7 @@ app.post("/login", async (req, res) => {
 
   const result = await userCollection
     .find({ email })
-    .project({ name: 1, email: 1, password: 1, _id: 1 })
+    .project({ name: 1, email: 1, password: 1, user_type: 1, _id: 1 })
     .toArray();
 
   if (result.length != 1) {
