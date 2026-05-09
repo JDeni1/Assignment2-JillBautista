@@ -24,13 +24,8 @@
       <ul class="nav nav-pills">
         <%for(var i=0; i<navItems.length; i++) { %>
           <li class="nav-item">
-            <a href="<%= navItems[i].href %>" class="nav-link <%= navItems[i].active ? 'active' : '' %>"><%= navItems[i].name %></a>
+            <a href="<%= navItems[i].url %>" class="nav-link <%= navItems[i].active ? 'active' : '' %>"><%= navItems[i].name %></a>
           </li>
         <% } %>
-      </ul>
-    </div>
-    <div class="container">
-      <hr />
-        <li class="nav-item"><a href="/404" class="nav-link">404</a></li>
       </ul>
     </div>
