@@ -22,10 +22,15 @@
         <span class="fs-4">Simple header</span>
       </a>
       <ul class="nav nav-pills">
-        <li class="nav-item">
-          <a href="/" class="nav-link active" aria-current="page">Home</a>
-        </li>
-        <li class="nav-item"><a href="/login" class="nav-link">Login</a></li>
-        <li class="nav-item"><a href="/signup" class="nav-link">Sign Up</a></li>
+        <%for(var i=0; i<navItems.length; i++) { %>
+          <li class="nav-item">
+            <a href="<%= navItems[i].href %>" class="nav-link <%= navItems[i].active ? 'active' : '' %>"><%= navItems[i].name %></a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+    <div class="container">
+      <hr />
+        <li class="nav-item"><a href="/404" class="nav-link">404</a></li>
       </ul>
     </div>

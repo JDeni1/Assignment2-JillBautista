@@ -15,6 +15,12 @@ const path = require("path");
 const app = express();
 const saltRounds = 12;
 
+//Navigation links for header
+const navLinks = [ { name: "Home", url: "/" }, 
+{ name: "Members", url: "/members" }, 
+{ name: "Admin", url: "/admin" },
+{ name: "404", url: "/404" },];
+
 /* Secrets */
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
@@ -103,7 +109,7 @@ app.listen(port, () => {
 
 // Home
 app.get("/", (req, res) => {
-  res.render("index", { name: req.session.name || null });
+  res.render("index", { name: req.session.name || null }, { navItems: navLinks });
 });
 
 // Signup GET
