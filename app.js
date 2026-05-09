@@ -197,6 +197,41 @@ app.get("/members", (req, res) => {
   res.render("members", { name: req.session.name });
 });
 
+app.get("/admin", async (req, res) => {
+  if (!req.session.name) {
+    return res.redirect("/login");
+  }
+  if (req.session.user_type !== "admin") {
+    return res.status(403).render("403");
+  }
+  const users = await userCollection.find().toArray();
+  res.render("admin", { users });
+});
+
+// Promote user
+app.get("/promoteUser", async (req, res) => {
+  const email = req.query.email;
+
+  const schema = Joi.object({ email: Joi.string().email().required() });
+  const { error } = schema.validate({ email });
+  if (error) return res.status(400).render("404");
+
+  await userCollection.updateOne({ email }, { $set: { user_type: "admin" } });
+  res.redirect("/admin");
+});
+
+// Demote user
+app.get("/demoteUser", async (req, res) => {
+  const email = req.query.email;
+
+  const schema = Joi.object({ email: Joi.string().email().required() });
+  const { error } = schema.validate({ email });
+  if (error) return res.status(400).render("404");
+
+  await userCollection.updateOne({ email }, { $set: { user_type: "user" } });
+  res.redirect("/admin");
+});
+
 // Logout
 app.get("/logout", (req, res) => {
   req.session.destroy();
