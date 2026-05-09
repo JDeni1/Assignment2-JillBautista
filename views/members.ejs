@@ -1,19 +1,23 @@
 <%- include('templates/header') %>
 
-<h1>Hello, <%= name %>!</h1>
+<div class="container mt-4">
+  <h1 class="text-center">Hello, <%= name %>!</h1>
 
-<div class="row mt-4">
-  <div class="col-12 col-md-4">
-    <img src="/flower.jpg" class="img-fluid" />
+  <div class="row mt-4 justify-content-center">
+    <div class="col-12 col-md-4">
+      <img src="/flower.jpg" class="img-fluid rounded" />
+    </div>
+    <div class="col-12 col-md-4">
+      <img src="/minions.jpg" class="img-fluid rounded" />
+    </div>
+    <div class="col-12 col-md-4">
+      <img src="/sunchips.jpg" class="img-fluid rounded" />
+    </div>
   </div>
-  <div class="col-12 col-md-4">
-    <img src="/minions.jpg" class="img-fluid" />
-  </div>
-  <div class="col-12 col-md-4">
-    <img src="/sunchips.jpg" class="img-fluid" />
+
+  <div class="text-center mt-4">
+    <a href="/logout" class="btn btn-danger">Sign Out</a>
   </div>
 </div>
-
-<a href="/logout" class="btn btn-danger mt-3">Sign Out</a>
 
 <%- include('templates/footer') %>

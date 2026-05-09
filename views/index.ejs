@@ -1,13 +1,17 @@
 <%- include('templates/header') %>
 
-<% if (!name) { %>
-  <h1>Welcome!</h1>
-  <a href="/signup" class="btn btn-primary">Sign Up</a>
-  <a href="/login" class="btn btn-outline-primary ms-2">Log In</a>
-<% } else { %>
-  <h1>Hello, <%= name %>!</h1>
-  <a href="/members" class="btn btn-primary">Members Area</a>
-  <a href="/logout" class="btn btn-outline-danger ms-2">Sign Out</a>
-<% } %>
+<div class="row justify-content-center mt-5 text-center">
+  <div class="col-md-6">
+    <% if (!name) { %>
+      <h1>Welcome!</h1>
+      <a href="/signup" class="btn btn-primary me-2">Sign Up</a>
+      <a href="/login" class="btn btn-outline-primary">Log In</a>
+    <% } else { %>
+      <h1>Hello, <%= name %>!</h1>
+      <a href="/members" class="btn btn-primary me-2">Members Area</a>
+      <a href="/logout" class="btn btn-outline-danger">Sign Out</a>
+    <% } %>
+  </div>
+</div>
 
 <%- include('templates/footer') %>
