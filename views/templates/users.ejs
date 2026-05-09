@@ -1,0 +1,12 @@
+<tr>
+  <td><%= user.name %></td>
+  <td><%= user.email %></td>
+  <td><%= user.user_type %></td>
+  <td>
+    <% if (user.user_type === 'admin') { %>
+      <a href="/demoteUser?email=<%= user.email %>" class="btn btn-sm btn-danger">Demote to User</a>
+    <% } else { %>
+      <a href="/promoteUser?email=<%= user.email %>" class="btn btn-sm btn-success">Promote to Admin</a>
+    <% } %>
+  </td>
+</tr>

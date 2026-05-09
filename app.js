@@ -108,38 +108,39 @@ app.get("/", (req, res) => {
 
 // Signup GET
 app.get("/signup", (req, res) => {
-  res.render("signup");
+  res.render("signup", { error: null });
 });
 
-// Signup POST
 app.post("/signup", async (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
-
   if (!name) return res.render("signup", { error: "Please provide a name." });
   if (!email)
     return res.render("signup", { error: "Please provide an email address." });
   if (!password)
     return res.render("signup", { error: "Please provide a password." });
-
   const schema = Joi.object({
     name: Joi.string().max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().max(20).required(),
   });
-
   const validationResult = schema.validate({ name, email, password });
   if (validationResult.error != null) {
     console.log(validationResult.error);
     return res.render("signup", { error: "Invalid input." });
   }
-
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  await userCollection.insertOne({ name, email, password: hashedPassword });
+  await userCollection.insertOne({
+    name,
+    email,
+    password: hashedPassword,
+    user_type: "user", // added user_type
+  });
   console.log("Inserted user");
-
   req.session.name = name;
+  req.session.email = email;
+  req.session.user_type = "user";
   req.session.cookie.maxAge = expireTime;
   req.session.save(() => {
     res.redirect("/members");
@@ -148,7 +149,7 @@ app.post("/signup", async (req, res) => {
 
 // Login GET
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login", { error: null });
 });
 
 // Login POST

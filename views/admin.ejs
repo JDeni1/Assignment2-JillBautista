@@ -1,0 +1,22 @@
+<%- include('templates/header') %>
+
+<div class="container mt-4">
+  <h2>Users</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Type</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for (let user of users) { %>
+        <%- include('templates/user', { user }) %>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('templates/footer') %>

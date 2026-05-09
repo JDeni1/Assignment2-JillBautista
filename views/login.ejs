@@ -1,8 +1,27 @@
 <%- include('templates/header') %>
-<h1>Log In</h1>
-<form action="/login" method="post">
-  <input name="email" type="text" placeholder="Email" /><br />
-  <input name="password" type="password" placeholder="Password" /><br />
-  <button>Log In</button>
-</form>
+
+<div class="row justify-content-center mt-5">
+  <div class="col-md-4">
+    <h2 class="text-center mb-4">Please sign in</h2>
+
+    <% if (error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <form action="/login" method="POST">
+      <div class="mb-3">
+        <input type="email" name="email" class="form-control" placeholder="Email address" />
+      </div>
+      <div class="mb-3">
+        <input type="password" name="password" class="form-control" placeholder="Password" />
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Sign In</button>
+    </form>
+
+    <p class="text-center mt-3">
+      Don't have an account? <a href="/signup">Sign up</a>
+    </p>
+  </div>
+</div>
+
 <%- include('templates/footer') %>
