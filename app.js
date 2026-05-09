@@ -207,10 +207,16 @@ app.get("/members", (req, res) => {
 // Admin
 app.get("/admin", async (req, res) => {
   if (!req.session.name) return res.redirect("/login");
-  if (req.session.user_type !== "admin") return res.status(403).render("403", { navItems: navLinks });
+  if (req.session.user_type !== "admin") {
+    return res.status(403).render("403", { 
+      navItems: navLinks,
+      currentPage: "/admin" 
+    });
+  }
   const users = await userCollection.find().toArray();
-  renderPage(res, "admin", { users });
+  renderPage(res, "admin", { users, currentPage: "/admin" });
 });
+
 
 // Promote user
 app.get("/promoteUser", async (req, res) => {
