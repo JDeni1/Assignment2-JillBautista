@@ -128,7 +128,7 @@ app.listen(port, () => {
 
 // Home
 app.get("/", (req, res) => {
-  renderPage(res, "index", { name: req.session.name || null });
+  renderPage(res, "index", { name: req.session.name || null, currentPage: "/" });
 });
 
 // Signup GET
@@ -140,12 +140,12 @@ app.get("/signup", (req, res) => {
 app.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
 
-  if (!name) return renderPage(res, "signup", { error: "Please provide a name." });
-  if (!email) return renderPage(res, "signup", { error: "Please provide an email address." });
-  if (!password) return renderPage(res, "signup", { error: "Please provide a password." });
+  if (!name) return renderPage(res, "signup", { error: "Please provide a name.", currentPage: "/signup" });
+  if (!email) return renderPage(res, "signup", { error: "Please provide an email address.", currentPage: "/signup" });
+  if (!password) return renderPage(res, "signup", { error: "Please provide a password.", currentPage: "/signup" });
 
   const { error } = signupSchema.validate({ name, email, password });
-  if (error) return renderPage(res, "signup", { error: "Invalid input." });
+  if (error) return renderPage(res, "signup", { error: "Invalid input.", currentPage: "/signup" });
 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -164,7 +164,7 @@ app.post("/signup", async (req, res) => {
 
 // Login GET
 app.get("/login", (req, res) => {
-  renderPage(res, "login", { error: null });
+  renderPage(res, "login", { error: null, currentPage: "/login" });
 });
 
 // Login POST
@@ -173,7 +173,7 @@ app.post("/login", async (req, res) => {
 
   // Joi validation
   const { error } = loginSchema.validate({ email, password });
-  if (error) return renderPage(res, "login", { error: "Invalid email or password format." });
+  if (error) return renderPage(res, "login", { error: "Invalid email or password format.", currentPage: "/login" });
 
   // Find user
   const result = await userCollection
@@ -182,7 +182,7 @@ app.post("/login", async (req, res) => {
     .toArray();
 
   if (result.length !== 1) {
-    return renderPage(res, "login", { error: "User and password not found." });
+    return renderPage(res, "login", { error: "User and password not found.", currentPage: "/login" });
   }
 
   // Check password
@@ -194,14 +194,14 @@ app.post("/login", async (req, res) => {
     req.session.cookie.maxAge = expireTime;
     req.session.save(() => res.redirect("/members"));
   } else {
-    return renderPage(res, "login", { error: "User and password not found." });
+    return renderPage(res, "login", { error: "User and password not found.", currentPage: "/login" });
   }
 });
 
 // Members
 app.get("/members", (req, res) => {
   if (!req.session.name) return res.redirect("/");
-  renderPage(res, "members", { name: req.session.name });
+  renderPage(res, "members", { name: req.session.name, currentPage: "/members" });
 });
 
 // Admin
